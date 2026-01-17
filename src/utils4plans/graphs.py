@@ -5,6 +5,12 @@ from typing import Generic, TypeVar, Literal, Iterable
 T = TypeVar("T")
 
 
+def nodes_from_edges(edges_: Iterable[tuple[T, T]]):
+    edges = list(edges_)
+    n1 = [i[0] for i in edges] + [edges[-1][1]]
+    return n1
+
+
 @dataclass
 class Edge(Generic[T]):
     u: T
