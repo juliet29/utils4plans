@@ -11,9 +11,5 @@ def set_intersection(a: Iterable[T], b: Iterable[T]) -> list[T]:
     return list(set(a).intersection(set(b)))
 
 
-
-def set_equality(a: Iterable[T], b: Iterable[T]) -> list[T]:
+def set_equality(a: Iterable[T], b: Iterable[T]) -> bool:
     return set(a) == set(b)
-
-
-
