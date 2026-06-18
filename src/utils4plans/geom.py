@@ -4,51 +4,6 @@ from typing import Sequence
 import numpy as np
 
 
-class InvalidRangeException(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-@dataclass(frozen=True)
-class Range:
-    min: float
-    max: float
-
-    def __post_init__(self):
-        try:
-            assert self.min <= self.max
-        except AssertionError:
-            raise InvalidRangeException(self.min, self.max)
-
-    def __repr__(self) -> str:
-        return f"[{self.min:.2f}, {self.max:.2f}]"
-
-    def __eq__(self, other) -> bool:
-        return np.isclose(self.min, other.min) and np.isclose(self.max, other.max)
-
-    def size(self):
-        return self.max - self.min
-
-
-@dataclass(frozen=True)
-class Domain:
-    horz_range: Range
-    vert_range: Range
-
-
-class ShapelyBounds(NamedTuple):
-    minx: float
-    miny: float
-    maxx: float
-    maxy: float
-
-    @property
-    def domain(self):
-        horz_range = Range(self.minx, self.maxx)
-        vert_range = Range(self.miny, self.maxy)
-        return Domain(horz_range, vert_range)
-
-
 CoordsType = list[tuple[float | int, float | int]]
 
 
@@ -86,6 +41,63 @@ def tuple_list_from_list_of_coords(coords: list[Coord]) -> CoordsType:
 
 def coords_type_list_to_coords(input_coords: CoordsType):
     return [Coord(*i) for i in input_coords]
+
+
+class InvalidRangeException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+@dataclass(frozen=True)
+class Range:
+    min: float
+    max: float
+
+    def __post_init__(self):
+        try:
+            assert self.min <= self.max
+        except AssertionError:
+            raise InvalidRangeException(self.min, self.max)
+
+    def __repr__(self) -> str:
+        return f"[{self.min:.2f}, {self.max:.2f}]"
+
+    def __eq__(self, other) -> bool:
+        return np.isclose(self.min, other.min) and np.isclose(self.max, other.max)
+
+    def size(self):
+        return self.max - self.min
+
+
+@dataclass(frozen=True)
+class Domain:
+    horz_range: Range
+    vert_range: Range
+
+    def to_coords(self):
+        """Initial point is the top left corner"""
+        xmin, xmax = self.horz_range.min, self.horz_range.max
+        ymin, ymax = self.vert_range.min, self.vert_range.max
+
+        tl = Coord(xmin, ymax)
+        tr = Coord(xmax, ymax)
+        br = Coord(xmax, ymin)
+        bl = Coord(xmin, ymin)
+
+        return [tl, tr, br, bl]
+
+
+class ShapelyBounds(NamedTuple):
+    minx: float
+    miny: float
+    maxx: float
+    maxy: float
+
+    @property
+    def domain(self):
+        horz_range = Range(self.minx, self.maxx)
+        vert_range = Range(self.miny, self.maxy)
+        return Domain(horz_range, vert_range)
 
 
 @dataclass

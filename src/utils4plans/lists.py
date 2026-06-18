@@ -1,30 +1,37 @@
 from itertools import chain, tee, groupby
 from typing import Iterable, TypeVar, Callable, Any
-from expression.collections import Seq 
-
+from expression.collections import Seq
 
 
 # TODO write doc tests?
 
 T = TypeVar("T")
+
+
 def pairwise(lst: Iterable[T]) -> Iterable[tuple[T, T]]:
     "s -> (s0, s1), (s1, s2), (s2, s3), ..."
     a, b = tee(lst)
     next(b, None)
-    return zip(a, b) 
+    return zip(a, b)
 
 
+def filter_none(lst: Iterable[T]):
+    return [i for i in lst if i]
 
-def get_unique_one(lst: Iterable[T], filter_fx: Callable[ [T], Any  ]) -> T:
+
+def get_unique_one(lst: Iterable[T], filter_fx: Callable[[T], Any]) -> T:
     res = list(filter(filter_fx, lst))
-    assert len(res) == 1, f"Expected 1 result, instead got: {res}" 
+    assert len(res) == 1, f"Expected 1 result, instead got: {res}"
     return res[0]
+
 
 def chain_flatten(lst: Iterable[Iterable[T]]) -> list[T]:
     return list(chain.from_iterable(lst))
 
+
 def chain_flatten_seq(lst: Iterable[Iterable[T]]):
     return Seq(list(chain.from_iterable(lst)))
+
 
 def get_unique_items_in_list_keep_order(seq: Iterable):
     seen = set()
